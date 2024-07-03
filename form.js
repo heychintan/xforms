@@ -1,6 +1,3 @@
-<script type="text/javascript" src="https://js.createsend1.com/javascript/copypastesubscribeformlogic.js"></script>
-
-<script>
 // ⭐ Field validations ⭐
 $(document).ready(function () {
 var $form = $("#subForm");
@@ -149,4 +146,3 @@ $existingOptions.each(function() {
   }
 });
 });
-</script>
