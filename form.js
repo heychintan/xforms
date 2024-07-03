@@ -20,7 +20,6 @@ $inputFields.each(function () {
   if (!$parent.hasClass("hide") && $field.attr("type") !== "checkbox") {
     $parent.addClass("input-wrap");
   }
-  // Removed: Adding * span inside label for required fields
 });
 
 // Disable default form validation
