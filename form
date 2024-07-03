@@ -1,4 +1,3 @@
-<script>
 // ⭐ Field validations ⭐
 $(document).ready(function () {
 var $form = $("#subForm");
@@ -146,4 +145,3 @@ $countrySelect.append($option);
 }
 });
 });
-</script>
