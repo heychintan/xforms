@@ -33,23 +33,8 @@ document.addEventListener('DOMContentLoaded', () => {
         input.addEventListener('change', () => validateField(input));
     });
 
-    // Validate all fields
-    function validateAll() {
-        let isValid = true;
-        let firstInvalid;
+    / Validate individual field
 
-        inputs.forEach(input => {
-            if (input.hasAttribute('required') && !validateField(input)) {
-                isValid = false;
-                if (!firstInvalid) firstInvalid = input;
-            }
-        });
-
-        if (!isValid && firstInvalid) firstInvalid.focus();
-        return isValid;
-    }
-
-    // Validate individual field
     function validateField(input) {
         const errorMessage = input.nextElementSibling;
         const value = input.value.trim();
@@ -75,6 +60,7 @@ document.addEventListener('DOMContentLoaded', () => {
             return false;
         } else if (input.type === 'email' && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
             input.classList.add('error');
+            // Hardcoded email error message
             errorMessage.textContent = 'Enter a valid email. Ex: name@website.com';
             errorMessage.style.display = 'block';
             return false;
@@ -85,9 +71,10 @@ document.addEventListener('DOMContentLoaded', () => {
         return true;
     }
 
+
     // Add error message paragraphs after required fields
     inputs.forEach(input => {
-        if (input.hasAttribute('required') && !input.nextElementSibling?.classList.contains('error-message')) {
+        if (input.hasAttribute('required') && !input.nextElementSibling ? .classList.contains('error-message')) {
             const errorMessage = document.createElement('p');
             errorMessage.className = 'error-message';
             errorMessage.style.display = 'none';
@@ -102,17 +89,17 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!select) return;
 
         const options = Array.from(select.options);
-        
+
         // Ensure "Select..." option is at the top
-        let selectOption = options.find(o => o.text === "Select...") || 
+        let selectOption = options.find(o => o.text === "Select...") ||
             new Option("Select...", "", true, true);
         selectOption.disabled = true;
 
         // Define primary countries
         const primaryCountries = ["Australia", "Canada", "New Zealand", "United Kingdom", "United States of America"];
-        
+
         // Sort options
-        const primaryOptions = primaryCountries.map(country => 
+        const primaryOptions = primaryCountries.map(country =>
             options.find(o => o.text === country)
         ).filter(Boolean);
 
@@ -124,11 +111,11 @@ document.addEventListener('DOMContentLoaded', () => {
         select.innerHTML = '';
         select.appendChild(selectOption);
         primaryOptions.forEach(o => select.appendChild(o.cloneNode(true)));
-        
+
         const divider = new Option("──────────", "");
         divider.disabled = true;
         select.appendChild(divider);
-        
+
         remainingOptions.forEach(o => select.appendChild(o.cloneNode(true)));
     }
 
