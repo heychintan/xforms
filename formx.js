@@ -33,8 +33,7 @@ document.addEventListener('DOMContentLoaded', () => {
         input.addEventListener('change', () => validateField(input));
     });
 
-    // Validate individual field
-
+     // Validate individual field
     function validateField(input) {
         const errorMessage = input.nextElementSibling;
         const value = input.value.trim();
@@ -53,15 +52,16 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
 
-        if (value === '') {
+        if (input.type === 'email') {
+            if (value === '' || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
+                input.classList.add('error');
+                errorMessage.textContent = 'Enter a valid email. Ex: name@website.com';
+                errorMessage.style.display = 'block';
+                return false;
+            }
+        } else if (value === '') {
             input.classList.add('error');
             errorMessage.textContent = 'This field is required.';
-            errorMessage.style.display = 'block';
-            return false;
-        } else if (input.type === 'email' && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
-            input.classList.add('error');
-            // Hardcoded email error message
-            errorMessage.textContent = 'Enter a valid email. Ex: name@website.com';
             errorMessage.style.display = 'block';
             return false;
         }
