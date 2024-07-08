@@ -109,53 +109,45 @@ $(document).ready(function() {
             $field.after($errorMessage);
         }
     });
-
-    // Update country dropdown
     var $countrySelect = $('[aria-label="Country"]');
-    var primaryCountries = [{
-            name: "Australia",
-            value: "2037305"
-        },
-        {
-            name: "Canada",
-            value: "2037331"
-        },
-        {
-            name: "United Kingdom",
-            value: "2037530"
-        },
-        {
-            name: "United States of America",
-            value: "2037531"
-        },
-        {
-            name: "New Zealand",
-            value: "2037454"
-        }
+    var primaryCountryNames = [
+        "Australia",
+        "Canada",
+        "United Kingdom",
+        "United States of America",
+        "New Zealand"
     ];
 
     // Store all existing options
-    var $existingOptions = $countrySelect.find('option').clone();
+    var $allOptions = $countrySelect.find('option').clone();
+
+    // Find and separate primary country options
+    var $primaryOptions = $allOptions.filter(function() {
+        return primaryCountryNames.includes($(this).text());
+    });
+
+    // Remove primary options from $allOptions
+    $allOptions = $allOptions.not($primaryOptions);
 
     // Clear the select
     $countrySelect.empty();
 
-    // Add default option
+    // Add the "Select..." option
     $countrySelect.append('<option disabled selected value="">Select...</option>');
 
     // Add primary countries
-    primaryCountries.forEach(function(country) {
-        $countrySelect.append(`<option value="${country.value}">${country.name}</option>`);
-    });
+    $countrySelect.append($primaryOptions);
 
     // Add divider
     $countrySelect.append('<option disabled>-----</option>');
 
-    // Add all other countries back
-    $existingOptions.each(function() {
-        var $option = $(this);
-        if (!primaryCountries.some(country => country.value === $option.val())) {
-            $countrySelect.append($option);
-        }
+    // Add all other countries
+    $countrySelect.append($allOptions);
+
+    // Sort non-primary options alphabetically
+    var $nonPrimaryOptions = $countrySelect.find('option').not(':first').not(':disabled').not($primaryOptions);
+    $nonPrimaryOptions.sort(function(a, b) {
+        return $(a).text().localeCompare($(b).text());
     });
+    $countrySelect.append($nonPrimaryOptions);
 });
