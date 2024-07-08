@@ -1,11 +1,23 @@
-function prioritizeCountries() {
+function getUSAOption() {
   const $select = $('[aria-label="Country"]');
-  const priorityCountries = ['Australia', 'Canada', 'New Zealand', 'United Kingdom', 'United States'];
   const usaOptions = ['United States of America', 'United States'];
+  
+  for (const option of usaOptions) {
+    if ($select.find(`option:contains("${option}")`).length > 0) {
+      return option;
+    }
+  }
+  
+  return 'United States'; // Default to 'United States' if neither option is found
+}
 
+function prioritizeCountries(usaOption) {
+  const $select = $('[aria-label="Country"]');
+  const priorityCountries = ['Australia', 'Canada', 'New Zealand', 'United Kingdom', usaOption];
+  
   // Store all options and remove them from the select
   const $options = $select.find('option').remove();
-
+  
   // Create an object to store options by country name
   const optionsByCountry = {};
   $options.each(function() {
@@ -15,16 +27,10 @@ function prioritizeCountries() {
       optionsByCountry[countryName] = $option;
     }
   });
-
-  // Check which USA option is present
-  const usaOption = usaOptions.find(option => optionsByCountry[option]);
-  if (usaOption) {
-    priorityCountries[priorityCountries.indexOf('United States')] = usaOption;
-  }
-
+  
   // Add the "Select..." option back
   $select.append($options.filter('[value=""]'));
-
+  
   // Add priority countries
   priorityCountries.forEach(country => {
     if (optionsByCountry[country]) {
@@ -32,10 +38,10 @@ function prioritizeCountries() {
       delete optionsByCountry[country];
     }
   });
-
+  
   // Add divider
   $select.append($('<option disabled>──────────</option>'));
-
+  
   // Add remaining countries
   Object.values(optionsByCountry).forEach($option => {
     $select.append($option);
@@ -43,4 +49,7 @@ function prioritizeCountries() {
 }
 
 // Usage
-$(document).ready(prioritizeCountries);
+$(document).ready(function() {
+  const usaOption = getUSAOption();
+  prioritizeCountries(usaOption);
+});
