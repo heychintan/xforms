@@ -33,7 +33,7 @@ document.addEventListener('DOMContentLoaded', () => {
         input.addEventListener('change', () => validateField(input));
     });
 
-    / Validate individual field
+    // Validate individual field
 
     function validateField(input) {
         const errorMessage = input.nextElementSibling;
