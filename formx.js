@@ -35,8 +35,12 @@ function reorganizeCountryDropdown() {
   });
 }
 
+
 // Call the function to reorganize the dropdown
-reorganizeCountryDropdown();
+$(document).ready(function() {
+  reorganizeCountryDropdown();
+});
+
 
 // function getUSAOption() {
 //   const $select = $('[aria-label="Country"]');
