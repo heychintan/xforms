@@ -111,43 +111,50 @@ $(document).ready(function() {
     });
 
     // ⭐ Update country dropdown ⭐
-    var $countrySelect = $('[aria-label="Country"]');
-    var primaryCountryNames = [
-        "Australia",
-        "Canada",
-        "United Kingdom",
-        "United States",
-        "New Zealand"
-    ];
+    function recCountries() {
+        const sel = document.querySelector('[aria-label="Country"]');
+        const opts = Array.from(sel.options);
 
-    // Store all existing options
-    var $allOptions = $countrySelect.find('option');
+        // Ensure "Select..." option is at the top
+        let selOpt = opts.find(o => o.text === "Select...");
+        if (!selOpt) {
+            selOpt = new Option("Select...", "", true, true);
+            selOpt.disabled = true;
+            sel.insertBefore(selOpt, sel.firstChild);
+        }
 
-    // Find and separate primary country options
-    var $primaryOptions = $allOptions.filter(function() {
-        return primaryCountryNames.includes($(this).text());
-    });
+        // Define and move primary countries
+        const primC = ["Australia", "Canada", "New Zealand", "United Kingdom"];
+        const usOpt = opts.find(o => o.text === "United States of America" || o.text === "United States");
+        if (usOpt) primC.push(usOpt.text);
 
-    // Remove primary options from $allOptions
-    $allOptions = $allOptions.not($primaryOptions);
+        const primOpts = [];
+        primC.forEach(c => {
+            const opt = opts.find(o => o.text === c);
+            if (opt) {
+                primOpts.push(opt.cloneNode(true));
+                sel.removeChild(opt);
+            }
+        });
 
-    // Clear the select
-    $countrySelect.empty();
+        // Sort and reinsert remaining options
+        const remC = Array.from(sel.options)
+            .filter(o => o !== selOpt)
+            .sort((a, b) => a.text.localeCompare(b.text));
 
-    // Add the "Select..." option
-    $countrySelect.append('<option disabled selected value="">Select...</option>');
+        // Clear existing options (except "Select...")
+        while (sel.options.length > 1) sel.remove(1);
 
-    // Add primary countries
-    $countrySelect.append($primaryOptions);
+        // Add primary options
+        primOpts.forEach(o => sel.add(o));
 
-    // Add divider
-    $countrySelect.append('<option disabled>-----</option>');
+        // Add disabled divider
+        const div = new Option("──────────", "", false, false);
+        div.disabled = true;
+        sel.add(div);
 
-    // Sort remaining options alphabetically
-    var $sortedOptions = $allOptions.not(':first').sort(function(a, b) {
-        return $(a).text().localeCompare($(b).text());
-    });
-
-    // Add all other countries
-    $countrySelect.append($sortedOptions);
+        // Add remaining options
+        remC.forEach(o => sel.add(o));
+    }
+    recCountries();
 });
