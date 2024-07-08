@@ -109,6 +109,8 @@ $(document).ready(function() {
             $field.after($errorMessage);
         }
     });
+    
+    // ⭐ Update country dropdown ⭐
     var $countrySelect = $('[aria-label="Country"]');
     var primaryCountryNames = [
         "Australia",
