@@ -74,7 +74,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Add error message paragraphs after required fields
     inputs.forEach(input => {
-        if (input.hasAttribute('required') && !input.nextElementSibling ? .classList.contains('error-message')) {
+        if (input.hasAttribute('required') && !input.nextElementSibling?.classList.contains('error-message')) {
             const errorMessage = document.createElement('p');
             errorMessage.className = 'error-message';
             errorMessage.style.display = 'none';
@@ -83,7 +83,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // ⭐ Country dropdow modifications ⭐
+    // ⭐ Country dropdown modifications ⭐
     function reorganizeCountries() {
         const select = document.querySelector('[aria-label="Country"]');
         if (!select) return;
@@ -92,19 +92,26 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Ensure "Select..." option is at the top
         let selectOption = options.find(o => o.text === "Select...") ||
-            new Option("Select...", "", true, true);
+            new Option("Select...", "", false, false);
         selectOption.disabled = true;
 
         // Define primary countries
-        const primaryCountries = ["Australia", "Canada", "New Zealand", "United Kingdom", "United States", "United States of America"];
+        const primaryCountries = ["Australia", "Canada", "New Zealand", "United Kingdom", "United States"];
 
         // Sort options
         const primaryOptions = primaryCountries.map(country =>
-            options.find(o => o.text === country)
+            options.find(o => o.text === country || o.text === "United States of America")
         ).filter(Boolean);
 
+        // Convert "United States of America" to "United States"
+        primaryOptions.forEach(option => {
+            if (option.text === "United States of America") {
+                option.text = "United States";
+            }
+        });
+
         const remainingOptions = options
-            .filter(o => o !== selectOption && !primaryOptions.includes(o))
+            .filter(o => o !== selectOption && !primaryOptions.includes(o) && o.text !== "United States of America")
             .sort((a, b) => a.text.localeCompare(b.text));
 
         // Clear and repopulate select
@@ -117,6 +124,12 @@ document.addEventListener('DOMContentLoaded', () => {
         select.appendChild(divider);
 
         remainingOptions.forEach(o => select.appendChild(o.cloneNode(true)));
+
+        // Set United States as default
+        const usOption = select.querySelector('option[value="United States"]');
+        if (usOption) {
+            usOption.selected = true;
+        }
     }
 
     reorganizeCountries();
