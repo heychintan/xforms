@@ -2,9 +2,9 @@ document.addEventListener('DOMContentLoaded', () => {
     // Country normalization function
     function normalizeCountry(country) {
         const countryMap = {
-            'USA': 'United States of America',
-            'US': 'United States of America',
-            'United States': 'United States of America',
+            'USA': 'United States',
+            'US': 'United States',
+            'United States of America': 'United States',
             // Add more mappings as needed
         };
         return countryMap[country.trim()] || country.trim();
