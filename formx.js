@@ -1,15 +1,4 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // Country normalization function
-    function normalizeCountry(country) {
-        const countryMap = {
-            'USA': 'United States',
-            'US': 'United States',
-            'United States of America': 'United States',
-            // Add more mappings as needed
-        };
-        return countryMap[country.trim()] || country.trim();
-    }
-
     // ⭐ Field validations ⭐
     const form = document.getElementById('subForm');
     const inputs = form.querySelectorAll('input:not([type="hidden"]), select, textarea');
@@ -44,10 +33,10 @@ document.addEventListener('DOMContentLoaded', () => {
         input.addEventListener('change', () => validateField(input));
     });
 
-    // ⭐ Input field validation ⭐
+     // ⭐ Input field validation ⭐
     function validateField(input) {
         const errorMessage = input.nextElementSibling;
-        let value = input.value.trim();
+        const value = input.value.trim();
         const isCheckbox = input.type === 'checkbox';
 
         if (isCheckbox) {
@@ -70,9 +59,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 errorMessage.style.display = 'block';
                 return false;
             }
-        } else if (input.getAttribute('aria-label') === 'Country') {
-            value = normalizeCountry(value);
-            input.value = value; // Update the input value with the normalized country name
         } else if (value === '') {
             input.classList.add('error');
             errorMessage.textContent = 'This field is required.';
@@ -85,9 +71,10 @@ document.addEventListener('DOMContentLoaded', () => {
         return true;
     }
 
+
     // Add error message paragraphs after required fields
     inputs.forEach(input => {
-        if (input.hasAttribute('required') && !input.nextElementSibling?.classList.contains('error-message')) {
+        if (input.hasAttribute('required') && !input.nextElementSibling ? .classList.contains('error-message')) {
             const errorMessage = document.createElement('p');
             errorMessage.className = 'error-message';
             errorMessage.style.display = 'none';
@@ -96,7 +83,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // ⭐ Country dropdown modifications ⭐
+    // ⭐ Country dropdow modifications ⭐
     function reorganizeCountries() {
         const select = document.querySelector('[aria-label="Country"]');
         if (!select) return;
@@ -133,15 +120,4 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     reorganizeCountries();
-
-    // Function to validate all fields
-    function validateAll() {
-        let isValid = true;
-        inputs.forEach(input => {
-            if (!validateField(input)) {
-                isValid = false;
-            }
-        });
-        return isValid;
-    }
 });
