@@ -84,53 +84,47 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // ⭐ Country dropdown modifications ⭐
-    function reorganizeCountries() {
-        const select = document.querySelector('[aria-label="Country"]');
-        if (!select) return;
+    // ⭐ Country dropdown modifications ⭐
+function reorganizeCountries() {
+  const select = document.querySelector('[aria-label="Country"]');
+  if (!select) return;
 
-        const options = Array.from(select.options);
+  const options = Array.from(select.options);
 
-        // Ensure "Select..." option is at the top
-        let selectOption = options.find(o => o.text === "Select...") ||
-            new Option("Select...", "", false, false);
-        selectOption.disabled = true;
+  // Ensure "Select..." option is at the top
+  let selectOption = options.find(o => o.text === "Select...") ||
+    new Option("Select...", "", false, false);
+  selectOption.disabled = true;
 
-        // Define primary countries
-        const primaryCountries = ["Australia", "Canada", "New Zealand", "United Kingdom", "United States"];
+  // Define primary countries
+  const primaryCountries = ["Australia", "Canada", "New Zealand", "United Kingdom", "United States"];
 
-        // Sort options
-        const primaryOptions = primaryCountries.map(country =>
-            options.find(o => o.text === country || o.text === "United States of America")
-        ).filter(Boolean);
+  // Sort options
+  const primaryOptions = primaryCountries
+    .map(country => options.find(o => o.text === country))
+    .filter(Boolean);
 
-        // Convert "United States of America" to "United States"
-        primaryOptions.forEach(option => {
-            if (option.text === "United States of America") {
-                option.text = "United States";
-            }
-        });
+  const remainingOptions = options
+    .filter(o => o !== selectOption && !primaryOptions.includes(o))
+    .sort((a, b) => a.text.localeCompare(b.text));
 
-        const remainingOptions = options
-            .filter(o => o !== selectOption && !primaryOptions.includes(o) && o.text !== "United States of America")
-            .sort((a, b) => a.text.localeCompare(b.text));
+  // Clear and repopulate select
+  select.innerHTML = '';
+  select.appendChild(selectOption);
+  primaryOptions.forEach(o => select.appendChild(o.cloneNode(true)));
 
-        // Clear and repopulate select
-        select.innerHTML = '';
-        select.appendChild(selectOption);
-        primaryOptions.forEach(o => select.appendChild(o.cloneNode(true)));
+  const divider = new Option("──────────", "");
+  divider.disabled = true;
+  select.appendChild(divider);
 
-        const divider = new Option("──────────", "");
-        divider.disabled = true;
-        select.appendChild(divider);
+  remainingOptions.forEach(o => select.appendChild(o.cloneNode(true)));
 
-        remainingOptions.forEach(o => select.appendChild(o.cloneNode(true)));
+  // Set United States as default
+  const usOption = select.querySelector('option[value="United States"]');
+  if (usOption) {
+    usOption.selected = true;
+  }
+}
 
-        // Set United States as default
-        const usOption = select.querySelector('option[value="United States"]');
-        if (usOption) {
-            usOption.selected = true;
-        }
-    }
-
-    reorganizeCountries();
+reorganizeCountries();
 });
