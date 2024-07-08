@@ -11,9 +11,17 @@ function prioritizeCountries() {
   
   // Add priority countries
   priorityCountries.forEach(country => {
-    const $option = $options.filter(function() {
+    let $option = $options.filter(function() {
       return $(this).text() === country;
     });
+    
+    // Special case for United States
+    if (country === 'United States' && $option.length === 0) {
+      $option = $options.filter(function() {
+        return $(this).text() === 'United States of America';
+      });
+    }
+    
     if ($option.length) {
       $select.append($option);
     }
@@ -25,7 +33,9 @@ function prioritizeCountries() {
   // Add remaining countries
   $options.each(function() {
     const $option = $(this);
-    if ($option.val() && !priorityCountries.includes($option.text()) && $option.text() !== 'Select...') {
+    const optionText = $option.text();
+    if ($option.val() && !priorityCountries.includes(optionText) && 
+        optionText !== 'United States of America' && optionText !== 'Select...') {
       $select.append($option);
     }
   });
