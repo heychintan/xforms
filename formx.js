@@ -1,47 +1,136 @@
-function recCountries() {
-  const sel = document.querySelector('[aria-label="Country"]');
-  const opts = Array.from(sel.options);
+document.addEventListener('DOMContentLoaded', () => {
+    // Field validations
+    const form = document.getElementById('subForm');
+    const inputs = form.querySelectorAll('input:not([type="hidden"]), select, textarea');
+    const tempButton = form.querySelector('[temp-button]');
+    const subButton = form.querySelector('[sub-button]');
 
-  // Ensure "Select..." option is at the top
-  let selOpt = opts.find(o => o.text === "Select...");
-  if (!selOpt) {
-    selOpt = new Option("Select...", "", true, true);
-    selOpt.disabled = true;
-    sel.insertBefore(selOpt, sel.firstChild);
-  }
+    // Add classes to input, select, label, and parent elements
+    inputs.forEach(input => {
+        const label = input.parentElement.querySelector('label');
+        const parent = input.parentElement;
+        const isCheckbox = input.type === 'checkbox';
 
-  // Define and move primary countries
-  const primC = ["Australia", "Canada", "New Zealand", "United Kingdom"];
-  const usOpt = opts.find(o => o.text === "United States of America" || o.text === "United States");
-  if (usOpt) primC.push(usOpt.text);
+        if (!isCheckbox) input.classList.add('input');
+        label.classList.add(isCheckbox ? 'checkbox-label' : 'input-label');
+        if (!parent.classList.contains('hide') && !isCheckbox) {
+            parent.classList.add('input-wrap');
+        }
+    });
 
-  const primOpts = [];
-  primC.forEach(c => {
-    const opt = opts.find(o => o.text === c);
-    if (opt) {
-      primOpts.push(opt.cloneNode(true));
-      sel.removeChild(opt);
+    // Disable default form validation
+    form.setAttribute('novalidate', 'novalidate');
+
+    // Click event for temporary button
+    tempButton.addEventListener('click', e => {
+        e.preventDefault();
+        if (validateAll()) subButton.click();
+    });
+
+    // Real-time validation on input change
+    inputs.forEach(input => {
+        input.addEventListener('input', () => validateField(input));
+        input.addEventListener('change', () => validateField(input));
+    });
+
+    // Validate all fields
+    function validateAll() {
+        let isValid = true;
+        let firstInvalid;
+
+        inputs.forEach(input => {
+            if (input.hasAttribute('required') && !validateField(input)) {
+                isValid = false;
+                if (!firstInvalid) firstInvalid = input;
+            }
+        });
+
+        if (!isValid && firstInvalid) firstInvalid.focus();
+        return isValid;
     }
-  });
 
-  // Sort and reinsert remaining options
-  const remC = Array.from(sel.options)
-    .filter(o => o !== selOpt)
-    .sort((a, b) => a.text.localeCompare(b.text));
+    // Validate individual field
+    function validateField(input) {
+        const errorMessage = input.nextElementSibling;
+        const value = input.value.trim();
+        const isCheckbox = input.type === 'checkbox';
 
-  // Clear existing options (except "Select...")
-  while (sel.options.length > 1) sel.remove(1);
+        if (isCheckbox) {
+            if (!input.checked) {
+                input.classList.add('error');
+                errorMessage.textContent = 'This checkbox is required.';
+                errorMessage.style.display = 'block';
+                return false;
+            } else {
+                input.classList.remove('error');
+                errorMessage.style.display = 'none';
+                return true;
+            }
+        }
 
-  // Add primary options
-  primOpts.forEach(o => sel.add(o));
+        if (value === '') {
+            input.classList.add('error');
+            errorMessage.textContent = 'This field is required.';
+            errorMessage.style.display = 'block';
+            return false;
+        } else if (input.type === 'email' && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
+            input.classList.add('error');
+            errorMessage.textContent = 'Enter a valid email. Ex: name@website.com';
+            errorMessage.style.display = 'block';
+            return false;
+        }
 
-  // Add disabled divider
-  const div = new Option("──────────", "", false, false);
-  div.disabled = true;
-  sel.add(div);
+        input.classList.remove('error');
+        errorMessage.style.display = 'none';
+        return true;
+    }
 
-  // Add remaining options
-  remC.forEach(o => sel.add(o));
-}
+    // Add error message paragraphs after required fields
+    inputs.forEach(input => {
+        if (input.hasAttribute('required') && !input.nextElementSibling?.classList.contains('error-message')) {
+            const errorMessage = document.createElement('p');
+            errorMessage.className = 'error-message';
+            errorMessage.style.display = 'none';
+            errorMessage.textContent = 'This field is required.';
+            input.insertAdjacentElement('afterend', errorMessage);
+        }
+    });
 
-recCountries();
+    // Update country dropdown
+    function reorganizeCountries() {
+        const select = document.querySelector('[aria-label="Country"]');
+        if (!select) return;
+
+        const options = Array.from(select.options);
+        
+        // Ensure "Select..." option is at the top
+        let selectOption = options.find(o => o.text === "Select...") || 
+            new Option("Select...", "", true, true);
+        selectOption.disabled = true;
+
+        // Define primary countries
+        const primaryCountries = ["Australia", "Canada", "New Zealand", "United Kingdom", "United States of America"];
+        
+        // Sort options
+        const primaryOptions = primaryCountries.map(country => 
+            options.find(o => o.text === country)
+        ).filter(Boolean);
+
+        const remainingOptions = options
+            .filter(o => o !== selectOption && !primaryOptions.includes(o))
+            .sort((a, b) => a.text.localeCompare(b.text));
+
+        // Clear and repopulate select
+        select.innerHTML = '';
+        select.appendChild(selectOption);
+        primaryOptions.forEach(o => select.appendChild(o.cloneNode(true)));
+        
+        const divider = new Option("──────────", "");
+        divider.disabled = true;
+        select.appendChild(divider);
+        
+        remainingOptions.forEach(o => select.appendChild(o.cloneNode(true)));
+    }
+
+    reorganizeCountries();
+});
