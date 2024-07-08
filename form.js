@@ -109,7 +109,7 @@ $(document).ready(function() {
             $field.after($errorMessage);
         }
     });
-    
+
     // ⭐ Update country dropdown ⭐
     var $countrySelect = $('[aria-label="Country"]');
     var primaryCountryNames = [
@@ -123,12 +123,15 @@ $(document).ready(function() {
     // Store all existing options
     var $allOptions = $countrySelect.find('option');
 
-    // Find primary country options
+    // Find and separate primary country options
     var $primaryOptions = $allOptions.filter(function() {
         return primaryCountryNames.includes($(this).text());
     });
 
-    // Remove all options from the select
+    // Remove primary options from $allOptions
+    $allOptions = $allOptions.not($primaryOptions);
+
+    // Clear the select
     $countrySelect.empty();
 
     // Add the "Select..." option
@@ -140,15 +143,11 @@ $(document).ready(function() {
     // Add divider
     $countrySelect.append('<option disabled>-----</option>');
 
-    // Filter out primary countries and "Select..." option from remaining options
-    var $remainingOptions = $allOptions.filter(function() {
-        return !primaryCountryNames.includes($(this).text()) && $(this).text() !== "Select...";
-    });
-
     // Sort remaining options alphabetically
-    var $sortedOptions = $remainingOptions.sort(function(a, b) {
+    var $sortedOptions = $allOptions.not(':first').sort(function(a, b) {
         return $(a).text().localeCompare($(b).text());
     });
 
     // Add all other countries
-    $countrySelect.append($sortedOptions);});
+    $countrySelect.append($sortedOptions);
+});
