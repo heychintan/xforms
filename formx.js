@@ -1,9 +1,17 @@
 function prioritizeCountries() {
   const $select = $('[aria-label="Country"]');
-  const priorityCountries = ['Australia', 'Canada', 'New Zealand', 'United Kingdom', 'United States'];
+  const $options = $select.find('option');
   
-  // Store all options and remove them from the select
-  const $options = $select.find('option').remove();
+  // Determine which version of United States is present
+  let usOption = 'United States';
+  if ($options.filter((_, el) => el.text === 'United States of America').length > 0) {
+    usOption = 'United States of America';
+  }
+  
+  const priorityCountries = ['Australia', 'Canada', 'New Zealand', 'United Kingdom', usOption];
+  
+  // Remove all options from the select
+  $options.remove();
   
   // Add the "Select..." option back
   const $selectOption = $options.filter('[value=""]');
@@ -11,17 +19,7 @@ function prioritizeCountries() {
   
   // Add priority countries
   priorityCountries.forEach(country => {
-    let $option = $options.filter(function() {
-      return $(this).text() === country;
-    });
-    
-    // Special case for United States
-    if (country === 'United States' && $option.length === 0) {
-      $option = $options.filter(function() {
-        return $(this).text() === 'United States of America';
-      });
-    }
-    
+    const $option = $options.filter((_, el) => el.text === country);
     if ($option.length) {
       $select.append($option);
     }
@@ -34,8 +32,7 @@ function prioritizeCountries() {
   $options.each(function() {
     const $option = $(this);
     const optionText = $option.text();
-    if ($option.val() && !priorityCountries.includes(optionText) && 
-        optionText !== 'United States of America' && optionText !== 'Select...') {
+    if ($option.val() && !priorityCountries.includes(optionText) && optionText !== 'Select...') {
       $select.append($option);
     }
   });
