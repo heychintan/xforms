@@ -111,17 +111,17 @@ $(document).ready(function() {
     });
     
     // ⭐ Update country dropdown ⭐
-    var $countrySelect = $('[aria-label="Country"]');
+        var $countrySelect = $('[aria-label="Country"]');
     var primaryCountryNames = [
         "Australia",
         "Canada",
         "United Kingdom",
-        "United States of America",
+        "United States",
         "New Zealand"
     ];
 
     // Store all existing options
-    var $allOptions = $countrySelect.find('option').clone();
+    var $allOptions = $countrySelect.find('option');
 
     // Find and separate primary country options
     var $primaryOptions = $allOptions.filter(function() {
@@ -143,13 +143,11 @@ $(document).ready(function() {
     // Add divider
     $countrySelect.append('<option disabled>-----</option>');
 
-    // Add all other countries
-    $countrySelect.append($allOptions);
-
-    // Sort non-primary options alphabetically
-    var $nonPrimaryOptions = $countrySelect.find('option').not(':first').not(':disabled').not($primaryOptions);
-    $nonPrimaryOptions.sort(function(a, b) {
+    // Sort remaining options alphabetically
+    var $sortedOptions = $allOptions.not(':first').sort(function(a, b) {
         return $(a).text().localeCompare($(b).text());
     });
-    $countrySelect.append($nonPrimaryOptions);
+
+    // Add all other countries
+    $countrySelect.append($sortedOptions);
 });
