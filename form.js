@@ -1,160 +1,115 @@
-// ⭐ Field validations ⭐
 $(document).ready(function() {
-    var $form = $("#subForm");
-    var $inputFields = $form.find("input:not([type='hidden']), select, textarea");
-    var $tempButton = $form.find("[temp-button]");
-    var $submitButton = $form.find("[sub-button]");
+    // ⭐ Field validations ⭐
+    const $f = $("#subForm"),
+        $i = $f.find("input:not([type='hidden']), select, textarea"),
+        $t = $f.find("[temp-button]"),
+        $s = $f.find("[sub-button]");
 
     // Add classes to input, select, label, and parent elements
-    $inputFields.each(function() {
-        var $field = $(this);
-        if ($field.attr("type") !== "checkbox") {
-            $field.addClass("input");
-        }
-        var $label = $field.siblings("label");
-        $label.addClass(
-            $field.attr("type") === "checkbox" ? "checkbox-label" : "input-label"
-        );
-        var $parent = $field.parent();
-        // Add input-wrap class only if the parent doesn't have the hide class
-        if (!$parent.hasClass("hide") && $field.attr("type") !== "checkbox") {
-            $parent.addClass("input-wrap");
-        }
+    $i.each(function() {
+        const $e = $(this),
+            $l = $e.siblings("label"),
+            $p = $e.parent(),
+            c = $e.attr("type") === "checkbox";
+        if (!c) $e.addClass("input");
+        $l.addClass(c ? "checkbox-label" : "input-label");
+        if (!$p.hasClass("hide") && !c) $p.addClass("input-wrap");
     });
 
     // Disable default form validation
-    $form.attr("novalidate", "novalidate");
+    $f.attr("novalidate", "novalidate");
 
     // Click event for temporary button
-    $tempButton.on("click", function(e) {
+    $t.on("click", e => {
         e.preventDefault();
-        if (validateAllFields()) {
-            $submitButton.click(); // Trigger the actual submit button click
-        }
+        if (valAll()) $s.click();
     });
 
     // Real-time validation on input change
-    $inputFields.on("input change", function() {
-        validateField($(this));
-    });
+    $i.on("input change", function() { valF($(this)); });
 
-    function validateAllFields() {
-        var isValid = true;
-        var $firstInvalidField = null;
-
-        $inputFields.each(function() {
-            if ($(this).prop("required") && !validateField($(this))) {
-                isValid = false;
-                if (!$firstInvalidField) {
-                    $firstInvalidField = $(this);
-                }
+    // Validate all fields
+    function valAll() {
+        let v = true,
+            $f;
+        $i.each(function() {
+            if ($(this).prop("required") && !valF($(this))) {
+                v = false;
+                if (!$f) $f = $(this);
             }
         });
-
-        if (!isValid && $firstInvalidField) {
-            $firstInvalidField.focus();
-        }
-
-        return isValid;
+        if (!v && $f) $f.focus();
+        return v;
     }
 
-    function validateField($field) {
-        var $errorMessage = $field.siblings(".error-message");
-        var fieldValue = $field.val();
+    // Validate individual field
+    function valF($e) {
+        const $m = $e.siblings(".error-message"),
+            v = $e.val(),
+            c = $e.attr("type") === "checkbox";
 
-        if ($field.attr("type") === "checkbox") {
-            if (!$field.prop("checked")) {
-                $field.addClass("error");
-                $errorMessage
-                    .text("This checkbox is required.")
-                    .css("display", "block");
+        if (c) {
+            if (!$e.prop("checked")) {
+                $e.addClass("error");
+                $m.text("This checkbox is required.").show();
                 return false;
             } else {
-                $field.removeClass("error");
-                $errorMessage.css("display", "none");
+                $e.removeClass("error");
+                $m.hide();
                 return true;
             }
         }
 
-        // Check if the field is empty or has an empty value selected
-        if (fieldValue === "" || fieldValue === null) {
-            $field.addClass("error");
-            $errorMessage.text("This field is required.").css("display", "block");
+        if (v === "" || v === null) {
+            $e.addClass("error");
+            $m.text("This field is required.").show();
+            return false;
+        } else if ($e.attr("type") === "email" && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)) {
+            $e.addClass("error");
+            $m.text("Enter a valid email. Ex: name@website.com").show();
             return false;
         }
-        // Check if the field is an email field
-        else if ($field.attr("type") === "email") {
-            var emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            if (!emailRegex.test(fieldValue)) {
-                $field.addClass("error");
-                $errorMessage
-                    .text("Enter a valid email. Ex: name@website.com")
-                    .css("display", "block");
-                return false;
-            }
-        }
 
-        $field.removeClass("error");
-        $errorMessage.css("display", "none");
+        $e.removeClass("error");
+        $m.hide();
         return true;
     }
 
     // Add error message paragraphs after required fields
-    $inputFields.filter("[required]").each(function() {
-        var $field = $(this);
-        if (!$field.siblings(".error-message").length) {
-            var $errorMessage = $(
-                '<p class="error-message" style="display: none;">This field is required.</p>'
-            );
-            $field.after($errorMessage);
+    $i.filter("[required]").each(function() {
+        if (!$(this).siblings(".error-message").length) {
+            $(this).after('<p class="error-message" style="display:none;">This field is required.</p>');
         }
     });
 
     // ⭐ Update country dropdown ⭐
-    function recCountries() {
-        const sel = document.querySelector('[aria-label="Country"]');
-        const opts = Array.from(sel.options);
+    function recC() {
+        const s = document.querySelector('[aria-label="Country"]'),
+            o = Array.from(s.options);
 
         // Ensure "Select..." option is at the top
-        let selOpt = opts.find(o => o.text === "Select...");
-        if (!selOpt) {
-            selOpt = new Option("Select...", "", true, true);
-            selOpt.disabled = true;
-            sel.insertBefore(selOpt, sel.firstChild);
-        }
+        let t = o.find(o => o.text === "Select...") ||
+            (t = new Option("Select...", "", 1, 1), t.disabled = 1, s.insertBefore(t, s.firstChild), t);
 
         // Define and move primary countries
-        const primC = ["Australia", "Canada", "New Zealand", "United Kingdom"];
-        const usOpt = opts.find(o => o.text === "United States of America" || o.text === "United States");
-        if (usOpt) primC.push(usOpt.text);
-
-        const primOpts = [];
-        primC.forEach(c => {
-            const opt = opts.find(o => o.text === c);
-            if (opt) {
-                primOpts.push(opt.cloneNode(true));
-                sel.removeChild(opt);
-            }
-        });
+        const p = ["Australia", "Canada", "New Zealand", "United Kingdom"],
+            u = o.find(o => ["United States of America", "United States"].includes(o.text));
+        u && p.push(u.text);
+        const m = p.map(c => {
+            const t = o.find(o => o.text === c);
+            return t && (s.removeChild(t), t.cloneNode(1));
+        }).filter(Boolean);
 
         // Sort and reinsert remaining options
-        const remC = Array.from(sel.options)
-            .filter(o => o !== selOpt)
-            .sort((a, b) => a.text.localeCompare(b.text));
-
-        // Clear existing options (except "Select...")
-        while (sel.options.length > 1) sel.remove(1);
-
-        // Add primary options
-        primOpts.forEach(o => sel.add(o));
+        const r = Array.from(s.options).filter(o => o !== t).sort((a, b) => a.text.localeCompare(b.text));
+        s.options.length = 1;
+        m.forEach(o => s.add(o));
 
         // Add disabled divider
-        const div = new Option("──────────", "", false, false);
-        div.disabled = true;
-        sel.add(div);
+        s.add(Object.assign(new Option("──────────", ""), { disabled: 1 }));
 
         // Add remaining options
-        remC.forEach(o => sel.add(o));
+        r.forEach(o => s.add(o));
     }
-    recCountries();
+    recC();
 });
