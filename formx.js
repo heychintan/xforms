@@ -96,7 +96,7 @@ document.addEventListener('DOMContentLoaded', () => {
         selectOption.disabled = true;
 
         // Define primary countries
-        const primaryCountries = ["Australia", "Canada", "New Zealand", "United Kingdom", "United States of America"];
+        const primaryCountries = ["Australia", "Canada", "New Zealand", "United Kingdom", "United States", "United States of America"];
 
         // Sort options
         const primaryOptions = primaryCountries.map(country =>
